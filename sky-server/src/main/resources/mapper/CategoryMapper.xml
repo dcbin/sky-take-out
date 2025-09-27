@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.CategoryMapper">
+
+    <insert id="insert" parameterType="com.sky.entity.Category">
+        insert into
+            sky_take_out.category(type, name, sort, status,
+                                  create_time, update_time,
+                                  create_user, update_user)
+        VALUES
+            (#{type}, #{name}, #{sort}, #{status},
+             #{createTime}, #{updateTime},
+             #{createUser}, #{updateUser})
+    </insert>
+
+    <update id="update" parameterType="com.sky.entity.Category">
+        update
+            sky_take_out.category c
+        set
+            c.name = #{name}, c.sort = #{sort}, c.type = #{type},
+            c.update_time = #{updateTime}, c.update_user = #{updateUser}
+        where
+            c.id = #{id}
+    </update>
+    <update id="setCategoryStatus">
+        update
+            sky_take_out.category
+        set
+            status = #{status}, update_user = #{updateUser}, update_time = #{updateTime}
+        where
+            id = #{id}
+    </update>
+    <select id="listCategoryByPage" resultType="com.sky.entity.Category">
+        select
+            *
+        from
+            sky_take_out.category c
+        <where>
+            <if test="name!=null and name!=''">
+                and c.name like concat('%', #{name}, '%')
+            </if>
+            <if test="type!=null">
+                and c.type = #{type}
+            </if>
+        </where>
+    </select>
+</mapper>

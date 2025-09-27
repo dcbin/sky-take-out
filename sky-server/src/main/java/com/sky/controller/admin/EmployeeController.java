@@ -11,13 +11,12 @@ import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
-import com.sky.vo.EmployeePageVO;
+import com.sky.entity.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -88,10 +87,29 @@ public class EmployeeController {
                                                                 .build();
 
         PageInfo<Employee> employeePageResult = employeeService.listEmployeeByPage(pageQueryDTO);
-        EmployeePageVO result = EmployeePageVO.builder()
+        PageResult result = PageResult.builder()
                 .total(employeePageResult.getTotal())
                 .records(employeePageResult.getList())
                 .build();
         return Result.success(result);
+    }
+
+    @GetMapping("/{id}")
+    public Result<Employee> selectEmployeeById(@PathVariable("id") Integer id) {
+        Employee emp = employeeService.selectById(id);
+        return Result.success(emp);
+    }
+
+    @PutMapping
+    public Result<Object> updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        employeeService.update(employeeDTO);
+        return Result.success();
+    }
+
+    @PostMapping("/status/{status}")
+    public Result<Object> setEmployeeAccountStatus(@PathVariable Integer status,
+                                                   @RequestParam("id") Long id) {
+        employeeService.setEmployeeAccountStatus(id, status);
+        return Result.success();
     }
 }

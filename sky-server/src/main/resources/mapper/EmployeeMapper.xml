@@ -10,7 +10,24 @@
             (#{name}, #{username}, #{password}, #{phone}, #{sex}, #{idNumber},
              #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
-    
+    <update id="update" parameterType="com.sky.entity.Employee">
+        update
+            sky_take_out.employee e
+        set
+            e.name = #{name}, e.username = #{username}, e.sex = #{sex},
+            e.phone = #{phone}, e.id_number = #{idNumber},
+            e.update_user = #{updateUser}, e.update_time = #{updateTime}
+        where
+            e.id = #{id}
+    </update>
+    <update id="setEmployeeAccountStatus">
+        update
+            sky_take_out.employee e
+        set
+            status = #{status}, update_time = #{updateTime}, update_user = #{updateUser}
+        where e.id = #{id}
+    </update>
+
     <select id="listEmployeeByPage" parameterType="com.sky.dto.EmployeePageQueryDTO"
             resultType="com.sky.entity.Employee">
         select
@@ -19,8 +36,11 @@
             sky_take_out.employee e
         <where>
            <if test="name!=null and name!=''">
-                and e.name = #{name}
+                and e.name like concat('%', #{name}, '%')
            </if>
         </where>
+    </select>
+    <select id="selectEmpById" resultType="com.sky.entity.Employee">
+        select * from sky_take_out.employee e where e.id = #{id}
     </select>
 </mapper>

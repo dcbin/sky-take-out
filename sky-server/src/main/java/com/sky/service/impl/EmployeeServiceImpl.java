@@ -13,12 +13,12 @@ import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.service.EmployeeService;
-import com.sky.utils.ThreadLocalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -30,7 +30,6 @@ public class EmployeeServiceImpl implements EmployeeService {
      * 员工登录
      *
      * @param employeeLoginDTO
-     * @return
      */
     public Employee login(EmployeeLoginDTO employeeLoginDTO) {
         String username = employeeLoginDTO.getUsername();
@@ -52,7 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
-        if (employee.getStatus() == StatusConstant.DISABLE) {
+        if (Objects.equals(employee.getStatus(), StatusConstant.DISABLE)) {
             //账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
@@ -64,17 +63,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void save(EmployeeDTO employeeDTO) {
         Employee employee = Employee.builder()
-                                    .id(employeeDTO.getId())
-                                    .name(employeeDTO.getName())
-                                    .username(employeeDTO.getUsername())
-                                    .sex(employeeDTO.getSex())
-                                    .phone(employeeDTO.getPhone())
-                                    .idNumber(employeeDTO.getIdNumber())
-                                    .createTime(LocalDateTime.now())
-                                    .updateTime(LocalDateTime.now())
-                                    .createUser(ThreadLocalUtil.getCurrentEmpId())
-                                    .updateUser(ThreadLocalUtil.getCurrentEmpId())
-                                    .password("123456").build();
+                .id(employeeDTO.getId())
+                .name(employeeDTO.getName())
+                .username(employeeDTO.getUsername())
+                .sex(employeeDTO.getSex())
+                .phone(employeeDTO.getPhone())
+                .idNumber(employeeDTO.getIdNumber())
+                .createTime(LocalDateTime.now())
+                .password("123456").build();
 
         employeeMapper.insert(employee);
     }
@@ -84,5 +80,32 @@ public class EmployeeServiceImpl implements EmployeeService {
         PageHelper.startPage(pageQueryDTO.getPage(), pageQueryDTO.getPageSize());
         List<Employee> employees = employeeMapper.listEmployeeByPage(pageQueryDTO);
         return new PageInfo<>(employees);
+    }
+
+    @Override
+    public Employee selectById(Integer id) {
+        return employeeMapper.selectEmpById(id);
+    }
+
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee = Employee.builder()
+                .username(employeeDTO.getUsername())
+                .phone(employeeDTO.getPhone())
+                .id(employeeDTO.getId())
+                .idNumber(employeeDTO.getIdNumber())
+                .name(employeeDTO.getName())
+                .sex(employeeDTO.getSex())
+                .build();
+        employeeMapper.update(employee);
+    }
+
+    @Override
+    public void setEmployeeAccountStatus(Long id, Integer status) {
+        Employee emp = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+        employeeMapper.setEmployeeAccountStatus(emp);
     }
 }
